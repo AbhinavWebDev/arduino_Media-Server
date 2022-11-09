@@ -1,6 +1,6 @@
 import mongoose, { SchemaTypes } from "mongoose";
 
-const postSchema = mongoose.Schema({
+const storySchema = mongoose.Schema({
     userId: {
         type: SchemaTypes.ObjectId, required: true
     },
@@ -9,12 +9,7 @@ const postSchema = mongoose.Schema({
         required:true
     },
     profilePicture:String,
-    desc: String,
-    location: String,
-    likes: [SchemaTypes.ObjectId],
-    report: [],
-    Save: [],
-    image: String,
+    image: [],
 },
     {
         timestamps: true
@@ -22,5 +17,5 @@ const postSchema = mongoose.Schema({
 
     })
 
-var PostModel = mongoose.model("Posts", postSchema)
-export default PostModel
+var StoryModel = mongoose.model("Storys", storySchema)
+export default StoryModel

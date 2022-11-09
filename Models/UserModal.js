@@ -36,7 +36,7 @@ const UserSchema=mongoose.Schema(
             default:false
 
         },
-        profileImg:String,
+        profilePicture:String,
         coverImg:String,
         about:String,
         Country:String,

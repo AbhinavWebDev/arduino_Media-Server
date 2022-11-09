@@ -1,6 +1,7 @@
 import UserModel from "../Models/UserModal.js";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import mongoose from "mongoose";
 
 
 
@@ -63,35 +64,113 @@ export const getUser = async (req, res) => {
     }
 }
 
+//get follow or following userlist
+
+export const getFollowingList = async (req, res) => {
+    const ProfileId = req.params.id;
+
+    try {
+        // const currentUserPosts = await PostModel.find({ userId: userid });
+        const userList = await UserModel.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(ProfileId),
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "following",
+                    foreignField: "_id",
+                    as: "User",
+
+                },
+            },
+            {
+                $project: {
+                    User: {
+                        _id: 1,
+                        username: 1,
+                        firstname: 1,
+                        followers: 1,
+                        following: 1,
+                        profilePicture: 1
+                    },
+                    _id: 0,
+                },
+            },
+        ]);
+
+        res.status(200).json(userList[0].User);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+export const getUserList = async (req, res) => {
+    const ProfileId = req.params.id;
+
+    try {
+        // const currentUserPosts = await PostModel.find({ userId: userid });
+        const userList = await UserModel.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(ProfileId),
+                },
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "followers",
+                    foreignField: "_id",
+                    as: "User",
+
+                },
+            },
+            {
+                $project: {
+                    User: {
+                        _id: 1,
+                        username: 1,
+                        firstname: 1,
+                        followers: 1,
+                        following: 1,
+                        profilePicture: 1
+                    },
+                    _id: 0,
+                },
+            },
+        ]);
+
+        res.status(200).json(userList[0].User);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
 //update a user
 
 export const updateUser = async (req, res) => {
-    const id = req.params.id;
-    const { _id, currentUserAdminStatus, password } = req.body
 
-    if (id === _id) {
-        try {
-            if (password) {
-                const salt = await bcrypt.genSalt(10)
-                req.body.password = await bcrypt.hash(password, salt)
-            }
-            const user = await UserModel.findByIdAndUpdate(id, req.body, { new: true })
+    const { userId} = req.body;
+    try {
+        const user = await UserModel.findByIdAndUpdate(userId, req.body, { new: true })
             const token = jwt.sign(
                 { username: user.username, id: user._id },
                 process.env.JWT_KEY, { expiresIn: "1h" }
-
             )
             res.status(200).json({user,token})
-        }
-        catch (error) {
-            res.status(500).json(error)
-        }
+    } catch (error) {
+        res.status(500).json(error);
     }
+};
 
-    else {
-        res.status(403).json('Access Denied! you can only update your own profile')
-    }
-}
+   
+
+    // else {
+    //     res.status(403).json('Access Denied! you can only update your own profile')
+    // }
+
 
 //Delete a user
 

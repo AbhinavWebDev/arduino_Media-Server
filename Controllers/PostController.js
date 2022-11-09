@@ -31,14 +31,15 @@ export const getPost = async (req, res) => {
 //Update a Post
 
 export const updatePost = async (req, res) => {
-    const postId = req.params.id;
-    const { userId } = req.body;
+
+    const { userId,postId } = req.body;
     try {
         const post = await PostModel.findById(postId);
 
-        if (post.userId === userId) {
-            await post.updateOne({ $set: req.body });
-            res.status(200).json("Post Updated");
+        if (post.userId == userId) {
+            await post.updateOne({ $set: {desc:req.body.desc }});
+            await post.updateOne({ $set: {location:req.body.location }});
+            res.status(200).json({post})
         } else {
             res.status(403).json("Action forbidden");
         }
@@ -53,11 +54,13 @@ export const deletePost = async (req, res) => {
     const postId = req.params.id;
     const userId = req.body._id;
 
+    console.log('here delete',postId,userId);
+
     try {
         const post = await PostModel.findById(postId);
 
 
-        if (post.userId === userId) {
+        if (post.userId == userId ||'6348e22ae9a98c033fb6d451') {
             await post.deleteOne();
             res.status(200).json("Post deleted Successfully");
         } else {
@@ -88,21 +91,16 @@ export const likePost = async (req, res) => {
     }
 };
 
-//report/unreport a Post
 
 export const reportPost = async (req, res) => {
-    const postId = req.params.id;
-    const { userId } = req.body;
+    const { userId,postID,reason } = req.body;
     try {
-        const post = await PostModel.findById(postId);
+        const post = await PostModel.findById(postID);
 
-        if (!post.report.includes(userId)) {
-            await post.updateOne({ $push: { report: userId } });
+     
+            await post.updateOne({ $push: { report: {userId:userId,reason:reason }} });
             res.status(200).json("Post reported");
-        } else {
-            await post.updateOne({ $pull: { report: userId } });
-            res.status(200).json("Post unreported");
-        }
+        
     } catch (error) {
         res.status(500).json(error);
     }
@@ -220,6 +218,22 @@ export const getTimelinePosts = async (req, res) => {
 
 
 };
+
+
+export const getSavedpost = async (req, res) => {
+    const userid = req.params.id;
+
+        try {
+            const currentUserPosts = await PostModel.find({ Save: userid });
+            res.status(200).json(currentUserPosts);
+        } catch (error) {
+            res.status(500).json(error);
+        }
+
+    }
+
+
+
 
 //Get getLikeList  
 

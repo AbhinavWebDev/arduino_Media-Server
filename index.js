@@ -9,7 +9,9 @@ import PostRoute from './Routes/PostRoutes.js'
 import UploadRoute from './Routes/UploadRoute.js'
 import ChatRoute from './Routes/ChatRoutes.js'
 import MessageRoute from './Routes/MessageRoute.js'
+import StoryRoute from './Routes/StoryRoutes.js'
 import authMiddleWare from "./Middleware/authMiddleWare.js";
+import CommentRoutes from "./Routes/CommentRoutes.js";
 
 //Routes
 
@@ -25,6 +27,7 @@ app.use('/images',express.static("images"))
 app.use(bodyParser.json({ limit: "30mb", extended: true }));
 app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors())
+// app.use(cors({origin:'http://localhost:3000'}))
 
 dotenv.config();
 
@@ -43,6 +46,8 @@ mongoose
   app.use('/auth',AuthRoute)
   app.use('/user',authMiddleWare,UserRoute)
   app.use('/post',authMiddleWare,PostRoute)
+  app.use('/story',authMiddleWare,StoryRoute)
+  app.use('/comment',authMiddleWare,CommentRoutes)
   app.use('/upload',authMiddleWare,UploadRoute)
   app.use('/chat',ChatRoute)
   app.use('/messages',MessageRoute)
